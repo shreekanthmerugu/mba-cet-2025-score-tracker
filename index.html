@@ -1,17 +1,43 @@
-<div class="card">
-    <h3>Select Your Slot</h3>
-    <select id="slot-selection" required>
-        <option value="">-- Select Slot --</option>
-        <option value="Slot 1">Slot 1</option>
-        <option value="Slot 2">Slot 2</option>
-        <option value="Slot 3">Slot 3</option>
-        <option value="Slot 4">Slot 4</option>
-        <option value="Slot 5">Slot 5</option>
-        <option value="Slot 6">Slot 6</option>
-    </select>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBA CET 2025 Score Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<div class="card">
-    <h3 class="upload-heading">Upload Your Response Sheet</h3>
-    <input type="file" id="file-upload" accept=".html">
-</div>
+    <h1>MBA CET 2025 Score Calculator</h1>
+
+    <div class="card-container">
+        <div class="card">
+            <h3>Select Your Slot</h3>
+            <select id="slot-selection" required>
+                <option value="">-- Select Slot --</option>
+                <option value="Slot 1">Slot 1</option>
+                <option value="Slot 2">Slot 2</option>
+                <option value="Slot 3">Slot 3</option>
+                <option value="Slot 4">Slot 4</option>
+                <option value="Slot 5">Slot 5</option>
+                <option value="Slot 6">Slot 6</option>
+            </select>
+        </div>
+
+        <div class="card">
+            <h3 class="upload-heading">Upload Your Response Sheet</h3>
+            <input type="file" id="file-upload" accept=".html">
+        </div>
+
+        <div class="card">
+            <h3>Summary</h3>
+            <p><strong>Name:</strong> <span id="name">-</span></p>
+            <p><strong>Application ID:</strong> <span id="appId">-</span></p>
+            <p><strong>Total Marks:</strong> <span id="total-marks" class="highlight">0/200</span></p>
+            <p><strong>Percentage:</strong> <span id="percentage">0%</span></p>
+        </div>
+    </div>
+
+<script src="script.js"></script>
+</body>
+</html>
