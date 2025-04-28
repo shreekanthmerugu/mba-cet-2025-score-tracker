@@ -3,8 +3,7 @@ document.getElementById('file-upload').addEventListener('change', handleFileUplo
 function handleFileUpload(event) {
     const slot = document.getElementById('slot-selection').value;
     if (!slot) {
-        alert('Please select your Slot before uploading the file!');
-        // Reset file input so student is forced to select again after choosing slot
+        alert('⚠️ Please select your Slot before uploading the file!');
         event.target.value = '';
         return;
     }
@@ -15,8 +14,7 @@ function handleFileUpload(event) {
     const reader = new FileReader();
     reader.onload = function(e) {
         const htmlContent = e.target.result;
-        parseHTML(htmlContent, slot); // pass slot along
-        showSubmitButton();
+        parseHTML(htmlContent, slot);
     };
     reader.readAsText(file);
 }
@@ -25,38 +23,55 @@ function parseHTML(htmlContent, slot) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, 'text/html');
 
-    // (Your existing name, appId, table parsing code here...)
+    const span = doc.querySelector('span.hidden-sm.hidden-md');
+    let applicationId = "-", name = "-";
+    if (span) {
+        const textContent = span.textContent.trim();
+        [applicationId, name] = textContent.split(' - ').map(item => item.trim());
+    }
 
-    // Save slot into hidden place so you can use it during Submit
-    document.getElementById('submit-button').dataset.slot = slot;
+    const rows = Array.from(doc.querySelectorAll('tbody tr'));
+    let totalCorrect = 0;
+    const totalQuestions = 200;
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 3) {
+            const optionsText = cells[2].innerText.trim();
+            const correctOptionMatch = optionsText.match(/Correct Option:\s*(\d+)/);
+            const candidateResponseMatch = optionsText.match(/Candidate Response:\s*(\d+)/);
+
+            const correctOption = correctOptionMatch ? correctOptionMatch[1] : '-';
+            const userOption = candidateResponseMatch ? candidateResponseMatch[1] : '-';
+
+            const isCorrect = (correctOption === userOption) ? 'Yes' : 'No';
+            if (isCorrect === 'Yes') totalCorrect++;
+        }
+    });
+
+    const percentage = ((totalCorrect / totalQuestions) * 100).toFixed(2);
+
+    document.getElementById('name').textContent = name;
+    document.getElementById('appId').textContent = applicationId;
+    document.getElementById('total-marks').textContent = `${totalCorrect}/200`;
+    document.getElementById('percentage').textContent = `${percentage}%`;
+
+    // ➡️ Automatically open Google Form with Prefilled Data
+    openGoogleForm(name, applicationId, totalCorrect, percentage, slot);
 }
 
-// OPEN Google Form with all fields prefilled
-function openGoogleForm() {
-    const name = document.getElementById('name').textContent;
-    const appId = document.getElementById('appId').textContent;
-    const lrScore = document.getElementById('lr-score').textContent;
-    const arScore = document.getElementById('ar-score').textContent;
-    const qaScore = document.getElementById('qa-score').textContent;
-    const vaScore = document.getElementById('va-score').textContent;
-    const totalMarks = document.getElementById('total-marks').textContent;
-    const percentage = document.getElementById('percentage').textContent;
-    const slot = document.getElementById('submit-button').dataset.slot || '';
+function openGoogleForm(name, appId, totalCorrect, percentage, slot) {
+    // Paste your own Google Form ID and Field Entry IDs below
+    const formBaseURL = 'https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform?usp=pp_url';
 
-    const googleFormURL = `https://docs.google.com/forms/d/e/FORM_ID/viewform?usp=pp_url
-        &entry.123456=${encodeURIComponent(name)}
-        &entry.654321=${encodeURIComponent(appId)}
-        &entry.111111=${encodeURIComponent(lrScore)}
-        &entry.222222=${encodeURIComponent(arScore)}
-        &entry.333333=${encodeURIComponent(qaScore)}
-        &entry.444444=${encodeURIComponent(vaScore)}
-        &entry.555555=${encodeURIComponent(totalMarks)}
-        &entry.666666=${encodeURIComponent(percentage)}
-        &entry.777777=${encodeURIComponent(slot)}`;
+    const params = new URLSearchParams({
+        'entry.1111111111': name,         // Name Field
+        'entry.2222222222': appId,         // Application ID Field
+        'entry.3333333333': `${totalCorrect}/200`,  // Total Marks Field
+        'entry.4444444444': `${percentage}%`,       // Percentage Field
+        'entry.5555555555': slot            // Slot Field
+    });
 
-    window.open(googleFormURL, '_blank');
-}
-
-function showSubmitButton() {
-    document.getElementById('submit-button').style.display = 'inline-block';
+    const finalURL = `${formBaseURL}&${params.toString()}`;
+    window.open(finalURL, '_blank');
 }
